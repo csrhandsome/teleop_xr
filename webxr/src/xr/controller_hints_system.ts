@@ -112,7 +112,7 @@ export class ControllerHintsSystem extends createSystem({}) {
 			const controller = this.world.player?.gripSpaces?.[hand] ?? this.world.player?.raySpaces?.[hand];
 			if (panel.entity.object3D) {
 				panel.entity.object3D.visible = panel.hasContent && Boolean(controller)
-					&& !this.world.input?.isPrimary?.("hand", hand);
+					&& Boolean(this.world.input?.isPrimary?.("controller", hand));
 			}
 		}
 		this.lastConfig = config;
