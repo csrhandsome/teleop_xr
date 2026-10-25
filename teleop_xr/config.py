@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Optional, Dict, Union, Any
+from typing import List, Optional, Dict, Union, Any, Literal
 from pydantic import BaseModel, Field
 
 
@@ -23,6 +23,16 @@ class RobotVisConfig(BaseModel):
     initial_rotation_euler: List[float] = Field(default_factory=lambda: [0.0, 0.0, 0.0])
 
 
+class ControllerHint(BaseModel):
+    button: str = Field(min_length=1, max_length=24)
+    action: str = Field(min_length=1, max_length=64)
+
+
+class ControllerHintPanel(BaseModel):
+    title: str = Field(min_length=1, max_length=48)
+    rows: List[ControllerHint] = Field(default_factory=list, max_length=8)
+
+
 class TeleopSettings(BaseModel):
     host: str = "0.0.0.0"
     port: int = 4443
@@ -35,3 +45,7 @@ class TeleopSettings(BaseModel):
     natural_phone_position: List[float] = Field(default_factory=lambda: [0.0, 0.0, 0.0])
     camera_views: Dict[str, ViewConfig] = Field(default_factory=dict)
     video_config: Optional[Dict[str, Any]] = None
+    # Application-specific instructions, sent to XR clients with the initial config.
+    controller_hints: Dict[Literal["left", "right"], ControllerHintPanel] = Field(
+        default_factory=dict
+    )

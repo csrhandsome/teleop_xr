@@ -34,6 +34,7 @@ import {
 } from "./camera_views";
 import { ConnectionHudSystem } from "./connection_hud_system";
 import { initConsoleStream } from "./console_stream";
+import { ControllerHintsSystem } from "./controller_hints_system";
 import { ControllerCameraPanelSystem } from "./controller_camera_system";
 import { GlobalRefs } from "./global_refs";
 import { PanelSystem } from "./panel";
@@ -382,6 +383,7 @@ export const initWorld = async (
 	world.registerSystem(RobotModelSystem);
 	world.registerSystem(ControllerCameraPanelSystem);
 	world.registerSystem(ConnectionHudSystem);
+	world.registerSystem(ControllerHintsSystem);
 	world.registerSystem(CameraSettingsSystem);
 	world.registerSystem(CameraPanelSystem);
 	world.registerSystem(PanelHoverSystem);

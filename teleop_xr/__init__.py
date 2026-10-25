@@ -32,7 +32,7 @@ TF_RUB2FLU_ROT_INV = np.linalg.inv(TF_RUB2FLU_ROT)
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 try:
-    from ._version import __version__
+    from ._fork_version import __version__
 except ImportError:
     __version__ = "unknown"
 

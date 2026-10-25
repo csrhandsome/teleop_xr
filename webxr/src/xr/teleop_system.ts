@@ -73,6 +73,7 @@ export class TeleopSystem extends createSystem({}) {
 			try {
 				const message = JSON.parse(event.data);
 				if (message.type === "config") {
+					useAppStore.getState().setControllerHints(message.data?.controller_hints ?? {});
 					if (message.data?.input_mode) {
 						this.inputMode = message.data.input_mode;
 					}

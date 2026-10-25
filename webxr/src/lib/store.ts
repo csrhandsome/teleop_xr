@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export type ControllerHintPanel = {
+	title: string;
+	rows: Array<{ button: string; action: string }>;
+};
+
+export type ControllerHints = Partial<Record<"left" | "right", ControllerHintPanel>>;
+
 export type CameraConfig = Record<string, boolean>;
 
 export type TeleopSettings = {
@@ -39,6 +46,8 @@ export type TeleopLifecycle =
 	| "error";
 
 export type AppState = {
+	controllerHints: ControllerHints;
+	setControllerHints: (hints: ControllerHints) => void;
 	cameraConfig: CameraConfig;
 	availableCameras: string[];
 	teleopSettings: TeleopSettings;
@@ -90,6 +99,8 @@ const defaultTeleopTelemetry: TeleopTelemetry = {
 export const useAppStore = create<AppState>()(
 	persist(
 		(set, get) => ({
+			controllerHints: {},
+			setControllerHints: (controllerHints) => set({ controllerHints }),
 			cameraConfig: {},
 			availableCameras: [],
 			teleopSettings: defaultTeleopSettings,
