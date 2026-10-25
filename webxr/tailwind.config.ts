@@ -18,6 +18,20 @@ const config = {
 			},
 		},
 		extend: {
+			// Use installed fonts; building and viewing the dashboard needs no font CDN.
+			fontFamily: {
+				sans: [
+					"ui-sans-serif",
+					"system-ui",
+					"-apple-system",
+					"BlinkMacSystemFont",
+					'"Segoe UI"',
+					'"Noto Sans CJK SC"',
+					'"Microsoft YaHei"',
+					'"PingFang SC"',
+					"sans-serif",
+				],
+			},
 			colors: {
 				border: "hsl(var(--border))",
 				input: "hsl(var(--input))",
