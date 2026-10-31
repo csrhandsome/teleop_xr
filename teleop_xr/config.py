@@ -39,6 +39,8 @@ class TeleopSettings(BaseModel):
     robot_vis: Optional[RobotVisConfig] = None
     input_mode: InputMode = InputMode.CONTROLLER
     speed: float = 1.0
+    # Match the application's double-trigger deadman delay for the wrist HUD.
+    motion_activation_hold_s: float = Field(default=0.5, ge=0, allow_inf_nan=False)
     natural_phone_orientation_euler: List[float] = Field(
         default_factory=lambda: [0.0, -0.7853981633974483, 0.0]
     )

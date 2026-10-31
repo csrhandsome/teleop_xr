@@ -58,6 +58,7 @@ export type AppState = {
 	connectionStatus: ConnectionStatus;
 	teleopLifecycle: TeleopLifecycle;
 	teleopEngaged: boolean;
+	teleopMoving: boolean;
 	getCameraEnabled: (key: string) => boolean;
 	setCameraEnabled: (key: string, enabled: boolean) => void;
 	toggleAllCameras: (enabled: boolean) => void;
@@ -70,6 +71,7 @@ export type AppState = {
 	setConnectionStatus: (status: ConnectionStatus) => void;
 	setTeleopLifecycle: (status: TeleopLifecycle) => void;
 	setTeleopEngaged: (engaged: boolean) => void;
+	setTeleopMoving: (moving: boolean) => void;
 };
 
 const defaultTeleopSettings: TeleopSettings = {
@@ -111,6 +113,7 @@ export const useAppStore = create<AppState>()(
 			connectionStatus: "disconnected",
 			teleopLifecycle: "disconnected",
 			teleopEngaged: false,
+			teleopMoving: false,
 			getCameraEnabled: (key) => get().cameraConfig[key] !== false,
 			setCameraEnabled: (key, enabled) => {
 				set((state) => ({
@@ -157,6 +160,9 @@ export const useAppStore = create<AppState>()(
 			},
 			setTeleopEngaged: (engaged) => {
 				set({ teleopEngaged: engaged });
+			},
+			setTeleopMoving: (moving) => {
+				set({ teleopMoving: moving });
 			},
 		}),
 		{

@@ -9,6 +9,7 @@ import {
 import { setCameraViewsConfig } from "./camera_views";
 import { GlobalRefs } from "./global_refs";
 import { RobotModelSystem } from "./robot_system";
+import { TriggerMotionStatus } from "./motion_status";
 
 type DevicePose = {
 	position: { x: number; y: number; z: number };
@@ -29,9 +30,18 @@ export class TeleopSystem extends createSystem({}) {
 	private clientId = getClientId();
 	private reconnectTimer: number | null = null;
 	private reconnectAttempt = 0;
+	private motionActivationHoldS = 0.5;
+	private motionStatus = new TriggerMotionStatus();
 
 	init() {
 		this.connectWS();
+		const resetMotion = () => this.resetMotionStatus();
+		document.addEventListener("visibilitychange", resetMotion);
+		this.renderer.xr.addEventListener("sessionend", resetMotion);
+		this.renderer.xr.addEventListener("sessionstart", () => {
+			resetMotion();
+			this.renderer.xr.getSession()?.addEventListener("visibilitychange", resetMotion);
+		});
 
 		useAppStore.subscribe((state) => {
 			this.updateInterval = 1 / state.advancedSettings.updateRate;
@@ -61,12 +71,14 @@ export class TeleopSystem extends createSystem({}) {
 			this.updateStatus(false);
 			this.setLifecycle("reconnecting");
 			useAppStore.getState().setTeleopEngaged(false);
+			this.resetMotionStatus();
 			this.scheduleReconnect();
 		};
 
 		this.ws.onerror = (error) => {
 			console.error("WS Error", error);
 			this.setLifecycle("error");
+			this.resetMotionStatus();
 		};
 
 		this.ws.onmessage = (event) => {
@@ -74,6 +86,10 @@ export class TeleopSystem extends createSystem({}) {
 				const message = JSON.parse(event.data);
 				if (message.type === "config") {
 					useAppStore.getState().setControllerHints(message.data?.controller_hints ?? {});
+					const holdSeconds = message.data?.motion_activation_hold_s;
+					this.motionActivationHoldS = typeof holdSeconds === "number" &&
+						Number.isFinite(holdSeconds) && holdSeconds >= 0 ? holdSeconds : 0.5;
+					this.resetMotionStatus();
 					if (message.data?.input_mode) {
 						this.inputMode = message.data.input_mode;
 					}
@@ -236,6 +252,24 @@ export class TeleopSystem extends createSystem({}) {
 			precisionMode,
 		};
 		const state = this.gatherInputState(input, teleopSettings);
+		const session = this.renderer.xr.getSession();
+		if (!this.ws || this.ws.readyState !== WebSocket.OPEN ||
+			!session || session.visibilityState !== "visible" || document.hidden) {
+			this.resetMotionStatus();
+		} else {
+			const controllers = state?.devices.filter((device) => device.role === "controller");
+			const left = controllers?.find((device) => device.handedness === "left");
+			const right = controllers?.find((device) => device.handedness === "right");
+			const moving = this.motionStatus.update(
+				Boolean(left?.gripPose && input?.isPrimary?.("controller", "left") &&
+					left.gamepad?.buttons[0]?.pressed),
+				Boolean(right?.gripPose && input?.isPrimary?.("controller", "right") &&
+					right.gamepad?.buttons[0]?.pressed),
+				performance.now() / 1000,
+				this.motionActivationHoldS,
+			);
+			if (moving !== appState.teleopMoving) appState.setTeleopMoving(moving);
+		}
 
 		const latency = state ? state.fetch_latency_ms : 0;
 		const head = state?.devices.find((device) => device.role === "head");
@@ -259,6 +293,12 @@ export class TeleopSystem extends createSystem({}) {
 				}),
 			);
 		}
+	}
+
+	private resetMotionStatus() {
+		this.motionStatus.reset();
+		const state = useAppStore.getState();
+		if (state.teleopMoving) state.setTeleopMoving(false);
 	}
 
 	updateLocalStats(
