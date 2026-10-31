@@ -97,7 +97,7 @@ class WristConnectionStatusPanel {
 
 	setLifecycle(lifecycle: TeleopLifecycle, moving: boolean) {
 		const display = moving && (lifecycle === "connected" || lifecycle === "ready")
-			? { label: "moving", color: "#22c55e", background: "rgba(8, 30, 12, 0.86)" }
+			? { label: "Moving", color: "#22c55e", background: "rgba(8, 30, 12, 0.86)" }
 			: lifecycleDisplay[lifecycle];
 
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -116,7 +116,7 @@ class WristConnectionStatusPanel {
 		this.context.arc(54, this.canvas.height / 2, 15, 0, Math.PI * 2);
 		this.context.fill();
 
-		this.context.fillStyle = display.label === "moving" ? display.color : "#f4f4f5";
+		this.context.fillStyle = display.label === "Moving" ? display.color : "#f4f4f5";
 		this.context.font = "600 40px sans-serif";
 		this.context.textBaseline = "middle";
 		this.context.fillText(display.label, 86, this.canvas.height / 2);
