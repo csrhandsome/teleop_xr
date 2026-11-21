@@ -33,6 +33,15 @@ class ControllerHintPanel(BaseModel):
     rows: List[ControllerHint] = Field(default_factory=list, max_length=8)
 
 
+def dh5_gripper_hints() -> list[dict[str, str]]:
+    """Right-hand instructions for proportional joystick control of the DH5."""
+    return [
+        {"button": "摇杆 ↑", "action": "闭合夹爪，推得越远越快"},
+        {"button": "摇杆 ↓", "action": "张开夹爪，推得越远越快"},
+        {"button": "摇杆回中", "action": "停止开合；通信恢复后回中再操作"},
+    ]
+
+
 class TeleopSettings(BaseModel):
     host: str = "0.0.0.0"
     port: int = 4443
